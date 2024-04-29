@@ -55,6 +55,22 @@ Section find_string_table(FILE* file, const Elf64_Ehdr* eh) {
   return str_section;
 }
 
+DynamicSection find_dynamic_section(FILE* file, const Elf64_Ehdr* eh) {
+  Elf64_Shdr* sh = elf_section_header(file, eh);
+  DynamicSection dynamic_section = { 0 };
+  for(int i = 0; i < eh->e_shnum; i++) {
+    if(sh[i].sh_type == SHT_DYNAMIC) {
+      dynamic_section.dyn = malloc(sh[i].sh_size);
+      fseek(file, sh[i].sh_offset, SEEK_SET);
+      fread(dynamic_section.dyn, 1, sh[i].sh_size, file);
+      dynamic_section.size = sh[i].sh_size;
+      break;
+    }
+  }
+
+  return dynamic_section;
+}
+
 void print_total_sections(const Elf64_Ehdr* eh) {
   printf("Total number of sections : %" PRIu16 "\n", eh->e_shnum);
 }
@@ -66,7 +82,6 @@ void print_text_section(FILE* file, Section* ts) {
       for(int i = 0; i < ts->size; i++) {
         printf("%02x\n", ((unsigned char *)text)[i]);
       }
-      printf;
       free(text);
 }
 
@@ -85,3 +100,28 @@ void print_section_names(FILE* file, Elf64_Ehdr* eh){
 
   free(str_table);
 }
+
+void print_linked_librairies(FILE* file, Elf64_Ehdr* eh) {
+  DynamicSection dynamic_section = find_dynamic_section(file, eh);
+  Elf64_Dyn* current_dyn = dynamic_section.dyn;
+  Elf64_Dyn* end_dyn = (Elf64_Dyn*)((uint8_t*)dynamic_section.dyn + dynamic_section.size);
+  Section string_section = find_string_table(file, eh);
+  void* str_table = malloc(string_section.size);
+  fseek(file, string_section.offset, SEEK_SET);
+  fread(str_table, 1, string_section.size, file);
+
+  while(current_dyn < end_dyn) {
+    if(current_dyn->d_tag == DT_NEEDED) {
+      const char* lib_name = str_table + current_dyn->d_un.d_val;
+      printf(" - %s\n", lib_name);
+    }
+    current_dyn = (Elf64_Dyn*)((uint8_t*)current_dyn + dynamic_section.size);
+  }
+
+  free(str_table);
+}
+
+// TODO : 
+// Factoriser les fonctions find_section_* pour en avoir plus qu'une.
+// Chaques fonctions qui renvoie une section devra avoir son resultat stocké dans main pour free().
+// Améliorer la présentation des informations.

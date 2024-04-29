@@ -15,6 +15,7 @@ int main() {
   text_section = find_text_section(file, &elf_header);
   print_text_section(file, &text_section);
   print_section_names(file, &elf_header);
+  print_linked_librairies(file, &elf_header);
   fclose(file);
   return 0;
 }
