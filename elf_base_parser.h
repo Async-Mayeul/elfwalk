@@ -9,15 +9,11 @@
 #define SIMPLE_ELF
 
 typedef struct {
+    Elf64_Dyn* dyn;
     uint64_t addr;
     uint64_t offset;
     uint64_t size;
 } Section;
-
-typedef struct {
-  Elf64_Dyn* dyn;
-  uint64_t size;
-} DynamicSection;
 
 int check_elf_file(const Elf64_Ehdr* eh);
 //unsigned int get_file_size(const Elf64_Ehdr* eh);
@@ -27,11 +23,11 @@ int check_elf_file(const Elf64_Ehdr* eh);
 //unsigned int get_blocks_size(const Elf64_Ehdr* eh);
 //unsigned int get_inode(const Elf64_Ehdr* eh);
 Elf64_Shdr* elf_section_header(FILE* file, const Elf64_Ehdr* eh);
-Section find_text_section(FILE* file, const Elf64_Ehdr* eh);
-Section find_string_table(FILE* file, const Elf64_Ehdr* eh);
-DynamicSection find_dynamic_section(FILE* file, const Elf64_Ehdr* eh);
-void print_linked_librairies(FILE* file, Elf64_Ehdr* eh);
+Section find_text_section(FILE* file, const Elf64_Ehdr* eh, const Elf64_Shdr* sh);
+Section find_dynamic_section(FILE* file, const Elf64_Ehdr* eh, const Elf64_Shdr* sh);
+Section find_str_dyn_section(FILE* file, const Elf64_Ehdr* eh, const Elf64_Shdr* sh);
+void print_linked_librairies(FILE* file, const Elf64_Ehdr* eh, Elf64_Shdr* sh, const Section dynamic_section);
 void print_total_sections(const Elf64_Ehdr* eh);
-void print_text_section(FILE* file, Section* ts);
-void print_section_names(FILE* file, Elf64_Ehdr* eh);
+void print_text_section(FILE* file, const Section* ts);
+void print_section_names(FILE* file,const Elf64_Ehdr* eh, Elf64_Shdr* sh);
 #endif
