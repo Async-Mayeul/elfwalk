@@ -96,15 +96,13 @@ int main(int argc, char *argv[]) {
     if (!print_text && !print_sections && !print_section_info && !print_entrypoint && !print_string_table && !print_linked_libraries) {
         check_elf_file(&elf_header);
         get_basic_info(elf_file);
+        fs_capabilities(elf_file, file);
     }
 
     fclose(file);
 
     return 0;
 }
-
-
-
 
 
 // #include "elf_base_parser.h"

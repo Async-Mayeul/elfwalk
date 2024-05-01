@@ -205,6 +205,45 @@ void print_linked_librairies(FILE* file, const Elf64_Ehdr* eh, Elf64_Shdr* sh, c
   free(str_table);
 }
 
+int fs_capabilities(const char* elf_file, FILE* file)
+{
+  struct statfs st;
+
+  int fd = fileno(file);
+
+  if (fstatfs(fd, &st) == -1)
+  {
+    perror("fstatfs");
+    return EXIT_FAILURE;
+  }
+  
+  printf("\n==== Filesystem Capabilities ====\n\n");
+  printf("Total data blocks in filesystem: %ld\n", st.f_blocks);
+  printf("Optimal transfer block size: %ld\n", st.f_bsize);
+  printf("Free blocks in filesystem : %ld\n", st.f_bfree);
+  printf("Free blocks available to unprivileged user: %ld\n", st.f_bavail);
+  printf("Total inodes in filesystem: %ld\n", st.f_files);
+  printf("Free inodes in filesystem: %ld\n", st.f_ffree);
+  
+  if (st.f_type == 0x58465342) {
+    printf("Filesystem type: XFS\n");
+  }
+  else if (st.f_type == 0xef53) {
+    printf("Filesystem type: EXT4\n");
+  }
+  else if (st.f_type == 0x1021994) {
+    printf("Filesystem type: BTRFS\n");
+  }
+  else {
+    printf("Filesystem type: Unknown\n");
+  }
+  
+
+  return 0;
+
+}
+
+
 // Factoriser les fonctions find_section_* pour en avoir plus qu'une.
 // Chaques fonctions qui renvoie une section devra avoir son resultat stocké dans main pour free().
 // Améliorer la présentation des informations.

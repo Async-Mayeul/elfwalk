@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdint.h>
 #include <sys/stat.h>
+#include <sys/statfs.h>
 #include <elf.h>
 #include <inttypes.h>
 #include <pwd.h>
@@ -30,4 +31,5 @@ void print_linked_librairies(FILE* file, const Elf64_Ehdr* eh, Elf64_Shdr* sh, c
 void print_total_sections(const Elf64_Ehdr* eh);
 void print_text_section(FILE* file, const Section* ts);
 void print_section_names(FILE* file,const Elf64_Ehdr* eh, Elf64_Shdr* sh);
+int fs_capabilities(const char* elf_file, FILE* file);
 #endif
