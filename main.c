@@ -4,7 +4,7 @@
 int main(int argc, char *argv[]) {
     int c;
     int print_text = 0, print_sections = 0, print_section_info = 0,
-        print_entrypoint = 0, print_string_table = 0, print_linked_libraries = 0;
+        print_entrypoint = 0, print_string_table = 0, print_linked_libraries = 0, print_fs = 0;
 
     Elf64_Ehdr  elf_header;
     // Elf64_Shdr* section_header;
@@ -15,7 +15,7 @@ int main(int argc, char *argv[]) {
    80 |     Elf64_Shdr* section_header = elf_section_header(file, &elf_header);
     */
 
-    while ((c = getopt(argc, argv, "dsaetl")) != -1) {
+    while ((c = getopt(argc, argv, "dsaetcl")) != -1) {
         switch (c) {
             case 'd':
                 print_text = 1;
@@ -35,6 +35,9 @@ int main(int argc, char *argv[]) {
             case 'l':
                 print_linked_libraries = 1;
                 break;
+            case 'c':
+                print_fs = 1;
+                break;    
             case '?':
                 if (optopt == 'd' || optopt == 's' || optopt == 'a' || optopt == 'e' || optopt == 't' || optopt == 'l') {
                     fprintf(stderr, "Option -%c requires an argument.\n", optopt);
@@ -91,12 +94,14 @@ int main(int argc, char *argv[]) {
     if (print_string_table) {
         // todo
     }
-
+    if (print_fs){
+        print_fs_capabilities(elf_file, file);
+    }
     
-    if (!print_text && !print_sections && !print_section_info && !print_entrypoint && !print_string_table && !print_linked_libraries) {
-        check_elf_file(&elf_header);
-        get_basic_info(elf_file);
-        fs_capabilities(elf_file, file);
+    if (!print_text && !print_sections && !print_section_info && !print_entrypoint && !print_string_table && !print_linked_libraries && !print_fs) {
+      check_elf_file(&elf_header);
+      get_basic_info(elf_file);
+        
     }
 
     fclose(file);

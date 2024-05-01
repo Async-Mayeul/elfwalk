@@ -14,7 +14,7 @@ int check_elf_file(const Elf64_Ehdr* eh) {
     eh->e_ident[2] == 'L' &&
     eh->e_ident[3] == 'F') {
 
-      printf("It's an ELF file\n");
+      printf("\n === It's an ELF file === \n");
       return 0;
   } else {
       printf("Error it's not an ELF file\n");
@@ -205,7 +205,7 @@ void print_linked_librairies(FILE* file, const Elf64_Ehdr* eh, Elf64_Shdr* sh, c
   free(str_table);
 }
 
-int fs_capabilities(const char* elf_file, FILE* file)
+int print_fs_capabilities(const char* elf_file, FILE* file)
 {
   struct statfs st;
 
@@ -217,14 +217,8 @@ int fs_capabilities(const char* elf_file, FILE* file)
     return EXIT_FAILURE;
   }
   
-  printf("\n==== Filesystem Capabilities ====\n\n");
-  printf("Total data blocks in filesystem: %ld\n", st.f_blocks);
-  printf("Optimal transfer block size: %ld\n", st.f_bsize);
-  printf("Free blocks in filesystem : %ld\n", st.f_bfree);
-  printf("Free blocks available to unprivileged user: %ld\n", st.f_bavail);
-  printf("Total inodes in filesystem: %ld\n", st.f_files);
-  printf("Free inodes in filesystem: %ld\n", st.f_ffree);
-  
+  printf("\n==== Filesystem Informations ====\n\n");
+
   if (st.f_type == 0x58465342) {
     printf("Filesystem type: XFS\n");
   }
@@ -238,7 +232,13 @@ int fs_capabilities(const char* elf_file, FILE* file)
     printf("Filesystem type: Unknown\n");
   }
   
-
+  printf("Total data blocks in filesystem: %ld\n", st.f_blocks);
+  printf("Optimal transfer block size: %ld\n", st.f_bsize);
+  printf("Free blocks in filesystem : %ld\n", st.f_bfree);
+  printf("Free blocks available to unprivileged user: %ld\n", st.f_bavail);
+  printf("Total inodes in filesystem: %ld\n", st.f_files);
+  printf("Free inodes in filesystem: %ld\n", st.f_ffree);
+  
   return 0;
 
 }
