@@ -1,16 +1,5 @@
 #include "elf_base_parser.h"
 
-void print_usage() {
-    printf("Usage: ./program_name [options] <elf_file>\n");
-    printf("Options:\n");
-    printf("  -d    Print the .text section of the binary in hexadecimal format\n");
-    printf("  -s    Print the number of sections in the binary\n");
-    printf("  -a    Print the list of sections including their name and size\n");
-    printf("  -e    Print the entrypoint address of the program\n");
-    printf("  -t    Print the data available in the string table section (if exists)\n");
-    printf("  -l    Print the name of all the linked libraries\n");
-    printf("Example: ./program_name -d -s -a -e -t -l test\n");
-}
 
 int main(int argc, char *argv[]) {
     int c;
@@ -18,12 +7,15 @@ int main(int argc, char *argv[]) {
         print_entrypoint = 0, print_string_table = 0, print_linked_libraries = 0;
 
     Elf64_Ehdr  elf_header;
-    Elf64_Shdr* section_header;
+    // Elf64_Shdr* section_header;
     //  Section     text_section;
     //  Section     dynamic_section;
     //  Section     string_section;
+    /* les 4 commentaires me générent main.c:80:17: erreur: redéclaration de « section_header » sans classe de liaison
+   80 |     Elf64_Shdr* section_header = elf_section_header(file, &elf_header);
+    */
 
-    while ((c = getopt(argc, argv, "dsaehtl")) != -1) {
+    while ((c = getopt(argc, argv, "dsaetl")) != -1) {
         switch (c) {
             case 'd':
                 print_text = 1;
@@ -97,8 +89,7 @@ int main(int argc, char *argv[]) {
         get_entrypoint_adress(&elf_header);
     }
     if (print_string_table) {
-        // Check if the string table section exists
-        // and print its data if it exists
+        // todo
     }
 
     
