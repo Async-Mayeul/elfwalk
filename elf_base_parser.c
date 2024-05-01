@@ -1,6 +1,11 @@
 #include "elf_base_parser.h"
 
 int check_elf_file(const Elf64_Ehdr* eh) {
+  
+  if (eh == NULL) {
+    printf("Error: ELF header is NULL\n");
+    return 1;
+  }
   if(eh->e_ident[0] == 0x7f &&
     eh->e_ident[1] == 'E' &&
     eh->e_ident[2] == 'L' &&
@@ -12,6 +17,60 @@ int check_elf_file(const Elf64_Ehdr* eh) {
       printf("Error it's not an ELF file\n");
   return 1;
   }
+}
+
+int get_basic_info(const char* elf_file) 
+{
+  
+  if (elf_file == NULL) {
+    printf("Error: ELF file is NULL\n");
+    return EXIT_FAILURE;
+  }
+  
+  struct stat fileStat;
+  
+  if (stat(elf_file, &fileStat) == -1)
+    {
+        perror("stat");
+        return EXIT_FAILURE;
+    }
+
+  mode_t filePermissions = fileStat.st_mode & 0777;
+  int blocksNbr = fileStat.st_blocks;
+  size_t fileSize = fileStat.st_size;
+  int inodeNbr = fileStat.st_ino;
+  int owner_uid = fileStat.st_uid;
+  size_t blockSize = fileStat.st_blksize;
+  size_t blocksSize = blockSize * blocksNbr;
+  
+
+  struct passwd *pwd = getpwuid(owner_uid);
+
+  if (pwd == NULL) {
+    perror("getpwuid");
+    return EXIT_FAILURE;
+  }
+  printf("\n==== Basic Informations about the binary ====\n\n");
+  printf("File permissions = %o\n", filePermissions);
+  printf("Number of blocks = %d\n", blocksNbr);
+  printf("Blocks size = %zu bytes\n", blocksSize);
+  printf("File size = %zu bytes\n", fileSize);
+  printf("Inode number = %d\n", inodeNbr);
+  printf("Owner UID = %d and Owner name = %s\n\n", owner_uid, pwd->pw_name);
+
+  return 0;
+
+}
+
+int get_entrypoint_adress(const Elf64_Ehdr* eh) {
+
+  if (eh == NULL) {
+    printf("Error: ELF header is NULL\n");
+    return EXIT_FAILURE;
+  }
+  
+  printf("The entry point address is : 0x%x\n", eh->e_entry);
+  return 0;
 }
 
 Elf64_Shdr* elf_section_header(FILE* file, const Elf64_Ehdr* eh) {
@@ -141,7 +200,3 @@ void print_linked_librairies(FILE* file, const Elf64_Ehdr* eh, Elf64_Shdr* sh, c
 
   free(str_table);
 }
-
-// Factoriser les fonctions find_section_* pour en avoir plus qu'une.
-// Chaques fonctions qui renvoie une section devra avoir son resultat stocké dans main pour free().
-// Améliorer la présentation des informations.

@@ -5,6 +5,9 @@
 #include <sys/stat.h>
 #include <elf.h>
 #include <inttypes.h>
+#include <pwd.h>
+#include <getopt.h>
+#include <ctype.h>
 
 #ifndef SIMPLE_ELF
 #define SIMPLE_ELF
@@ -17,12 +20,8 @@ typedef struct {
 } Section;
 
 int check_elf_file(const Elf64_Ehdr* eh);
-//unsigned int get_file_size(const Elf64_Ehdr* eh);
-//unsigned char get_file_rights(const Elf64_Ehdr* eh);
-//const char* get_owner_info(const Elf64_Ehdr* eh);
-//unsigned int get_number_of_blocks(const Elf64_Ehdr* eh);
-//unsigned int get_blocks_size(const Elf64_Ehdr* eh);
-//unsigned int get_inode(const Elf64_Ehdr* eh);
+int get_basic_info(const char* elf_file);
+int get_entrypoint_adress(const Elf64_Ehdr* eh);
 Elf64_Shdr* elf_section_header(FILE* file, const Elf64_Ehdr* eh);
 Section find_text_section(FILE* file, const Elf64_Ehdr* eh, Elf64_Shdr* sh);
 Section find_dynamic_section(FILE* file, const Elf64_Ehdr* eh, const Elf64_Shdr* sh);
