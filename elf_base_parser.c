@@ -22,21 +22,26 @@ Elf64_Shdr* elf_section_header(FILE* file, const Elf64_Ehdr* eh) {
   return sh;
 }
 
-Section find_text_section(FILE* file, const Elf64_Ehdr* eh, const Elf64_Shdr* sh) {
+Section find_text_section(FILE* file, const Elf64_Ehdr* eh, Elf64_Shdr* sh) {
   Section special_section = { 0 };
   
+  Elf64_Shdr* str_section_header = &sh[eh->e_shstrndx];
+  void* str_table = malloc(str_section_header->sh_size);
+  fseek(file, str_section_header->sh_offset, SEEK_SET);
+  fread(str_table, 1, str_section_header->sh_size, file);
+
   for(int i = 0; i < eh->e_shnum; i++) {
-    if(sh[i].sh_type == SHT_PROGBITS && sh[i].sh_flags & SHF_EXECINSTR) {
-      if(sh[i].sh_size == 0) {
-        printf("No .text section\n");
-      }
+    char* section_name = (char*)str_table + sh[i].sh_name;
+    if(strcmp(section_name, ".text") == 0) {
       special_section.addr = sh[i].sh_addr;
       special_section.offset = sh[i].sh_offset;
       special_section.size = sh[i].sh_size;
-      break;
+
     }
   }
-  
+
+  free(str_table);
+ 
   return special_section;
 }
 
@@ -82,9 +87,20 @@ void print_text_section(FILE* file, const Section* ts) {
   void* text = malloc(ts->size);
   fseek(file, ts->offset, SEEK_SET);
   fread(text, 1, ts->size, file);
+  printf("==== Hexadecimal Content of .text section ==== \n");
   for(int i = 0; i < ts->size; i++) {
-    printf("%02x\n", ((unsigned char *)text)[i]);
+    if(i % 20 == 0) {
+      printf("\n");
+      printf("    ");
+    }
+    else if(i % 5 == 0) {
+      printf(" ");
+    }
+    else {
+    printf("%02x", ((unsigned char *)text)[i]);
+    }
   }
+  printf("\n");
   free(text);
 }
 
@@ -94,11 +110,15 @@ void print_section_names(FILE* file, const Elf64_Ehdr* eh, Elf64_Shdr* sh){
   fseek(file, str_section_header->sh_offset, SEEK_SET);
   fread(str_table, 1, str_section_header->sh_size, file);
 
-  printf("Section names: \n");
+  printf("==== Sections Informations ==== \n");
   for(int i = 0; i < eh->e_shnum; i++) {
     const char* section_name = (const char*)str_table + sh[i].sh_name;
-    printf("%d : %s\n", i, section_name);
+    printf("Section [%d] \n", i);
+    printf("\tName : %s \n", section_name);
+    printf("\tFirst byte address : % " PRIu64 "\n", sh[i].sh_addr);
+    printf("\tSize : % " PRIu64 "\n", sh[i].sh_size);
   }
+  printf("\n");
 
   free(str_table);
 }
@@ -110,12 +130,8 @@ void print_linked_librairies(FILE* file, const Elf64_Ehdr* eh, Elf64_Shdr* sh, c
   fseek(file, str_dyn_section.offset, SEEK_SET);
   fread(str_table, 1, str_dyn_section.size, file);
 
-  
-
+  printf("==== Dynamic Linking Librairies ====\n");
   while(current_dyn->d_tag != DT_NULL) {
-    if(current_dyn->d_tag == DT_STRTAB) {
-      printf("string table\n");
-    }
     if(current_dyn->d_tag == DT_NEEDED) {
       const char* lib_name = (const char*)str_table + current_dyn->d_un.d_val;
       printf(" - %s\n", lib_name);
@@ -126,7 +142,6 @@ void print_linked_librairies(FILE* file, const Elf64_Ehdr* eh, Elf64_Shdr* sh, c
   free(str_table);
 }
 
-// TODO : 
 // Factoriser les fonctions find_section_* pour en avoir plus qu'une.
 // Chaques fonctions qui renvoie une section devra avoir son resultat stocké dans main pour free().
 // Améliorer la présentation des informations.

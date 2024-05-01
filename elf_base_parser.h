@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include <sys/stat.h>
 #include <elf.h>
 #include <inttypes.h>
 
@@ -23,7 +24,7 @@ int check_elf_file(const Elf64_Ehdr* eh);
 //unsigned int get_blocks_size(const Elf64_Ehdr* eh);
 //unsigned int get_inode(const Elf64_Ehdr* eh);
 Elf64_Shdr* elf_section_header(FILE* file, const Elf64_Ehdr* eh);
-Section find_text_section(FILE* file, const Elf64_Ehdr* eh, const Elf64_Shdr* sh);
+Section find_text_section(FILE* file, const Elf64_Ehdr* eh, Elf64_Shdr* sh);
 Section find_dynamic_section(FILE* file, const Elf64_Ehdr* eh, const Elf64_Shdr* sh);
 Section find_str_dyn_section(FILE* file, const Elf64_Ehdr* eh, const Elf64_Shdr* sh);
 void print_linked_librairies(FILE* file, const Elf64_Ehdr* eh, Elf64_Shdr* sh, const Section dynamic_section);
