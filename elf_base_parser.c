@@ -243,7 +243,42 @@ int print_fs_capabilities(const char* elf_file, FILE* file)
 
 }
 
+int print_data_in_string_table(FILE* file, Elf64_Ehdr* eh, Elf64_Shdr* sh) {
+  Elf64_Shdr* str_section_header = &sh[eh->e_shstrndx];
+  char* str_table = malloc(str_section_header->sh_size);
+  fseek(file, str_section_header->sh_offset, SEEK_SET);
+  fread(str_table, 1, str_section_header->sh_size, file);
+
+  for (int i = 0; i < str_section_header->sh_size; i++)
+  {
+    const char str = str_table[i];
+    printf("%c", str);
+  }
+
+  return 0;
+}
+
 
 // Factoriser les fonctions find_section_* pour en avoir plus qu'une.
 // Chaques fonctions qui renvoie une section devra avoir son resultat stocké dans main pour free().
 // Améliorer la présentation des informations.
+
+
+// void print_section_names(FILE* file, const Elf64_Ehdr* eh, Elf64_Shdr* sh){
+//   Elf64_Shdr* str_section_header = &sh[eh->e_shstrndx];
+//   void* str_table = malloc(str_section_header->sh_size);
+//   fseek(file, str_section_header->sh_offset, SEEK_SET);
+//   fread(str_table, 1, str_section_header->sh_size, file);
+
+//   printf("==== Sections Informations ==== \n");
+//   for(int i = 0; i < eh->e_shnum; i++) {
+//     const char* section_name = (const char*)str_table + sh[i].sh_name;
+//     printf("Section [%d] \n", i);
+//     printf("\tName : %s \n", section_name);
+//     printf("\tFirst byte address : % " PRIu64 "\n", sh[i].sh_addr);
+//     printf("\tSize : % " PRIu64 "\n", sh[i].sh_size);
+//   }
+//   printf("\n");
+
+//   free(str_table);
+// }

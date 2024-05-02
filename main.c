@@ -101,6 +101,7 @@ int main(int argc, char *argv[]) {
     if (!print_text && !print_sections && !print_section_info && !print_entrypoint && !print_string_table && !print_linked_libraries && !print_fs) {
       check_elf_file(&elf_header);
       get_basic_info(elf_file);
+      print_data_in_string_table(file, &elf_header, section_header);
         
     }
 
