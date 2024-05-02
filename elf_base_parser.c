@@ -241,8 +241,8 @@ void print_section_names(FILE* file, const Elf64_Ehdr* eh, Elf64_Shdr* sh){
     const char* section_name = (const char*)str_table + sh[i].sh_name;
     printf("Section [%d] \n", i);
     printf("\tName : %s \n", section_name);
-    printf("\tFirst byte address : %lu" PRIu64 "\n", sh[i].sh_addr);
-    printf("\tSize : %lu" PRIu64 "\n", sh[i].sh_size);
+    printf("\tFirst byte address : %" PRIu64 "\n", sh[i].sh_addr);
+    printf("\tSize : %" PRIu64 "\n", sh[i].sh_size);
   }
   printf("\n");
 

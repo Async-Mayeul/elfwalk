@@ -2,12 +2,15 @@
 
 
 int main(int argc, char *argv[]) {
+    // Variables for the command line arguments
     int c;
     int print_text = 0, print_sections = 0, print_section_info = 0,
         print_entrypoint = 0, print_string_table = 0, print_linked_libraries = 0, print_fs = 0;
 
+    //header for the elf file
     Elf64_Ehdr  elf_header;
-
+    
+    // Parse the command line arguments
     while ((c = getopt(argc, argv, "dsaetcl")) != -1) {
         switch (c) {
             case 'd':
@@ -45,30 +48,33 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    
+    // Check if the ELF file is provided
     if (optind >= argc) {
         fprintf(stderr, "Error: ELF file is missing.\n");
         return EXIT_FAILURE;
     }
 
+    // Open the ELF file
     const char *elf_file = argv[optind];
-
     FILE* file = fopen(elf_file, "rb");
     
+    // Check if the file is opened
     if (file == NULL) {
         perror("fopen");
         return EXIT_FAILURE;
     }
 
-    
+    // Read the ELF header
     if(elf_file) {
       fread(&elf_header, 1, sizeof(elf_header), file);
    }
 
+    // Get the section header, the text section and the dynamic section
     Elf64_Shdr* section_header = elf_section_header(file, &elf_header);
     Section text_section = find_text_section(file, &elf_header, section_header);
     Section dynamic_section = find_dynamic_section(file, &elf_header, section_header);
 
+    // Print the requested information
     if (print_sections) {
         print_total_sections(&elf_header);
     }
@@ -91,6 +97,7 @@ int main(int argc, char *argv[]) {
         print_fs_capabilities(elf_file, file);
     }
     
+    // If no option is provided, print the basic information
     if (!print_text && !print_sections && !print_section_info && !print_entrypoint && !print_string_table && !print_linked_libraries && !print_fs) {
       check_elf_file(&elf_header);
       get_basic_info(elf_file);
@@ -98,6 +105,7 @@ int main(int argc, char *argv[]) {
         
     }
 
+    // Free the allocated memory and close the file
     free(section_header);
     free(dynamic_section.dyn);
     fclose(file);
