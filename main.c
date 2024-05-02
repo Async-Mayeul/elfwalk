@@ -7,13 +7,6 @@ int main(int argc, char *argv[]) {
         print_entrypoint = 0, print_string_table = 0, print_linked_libraries = 0, print_fs = 0;
 
     Elf64_Ehdr  elf_header;
-    // Elf64_Shdr* section_header;
-    //  Section     text_section;
-    //  Section     dynamic_section;
-    //  Section     string_section;
-    /* les 4 commentaires me générent main.c:80:17: erreur: redéclaration de « section_header » sans classe de liaison
-   80 |     Elf64_Shdr* section_header = elf_section_header(file, &elf_header);
-    */
 
     while ((c = getopt(argc, argv, "dsaetcl")) != -1) {
         switch (c) {
@@ -92,7 +85,7 @@ int main(int argc, char *argv[]) {
         get_entrypoint_adress(&elf_header);
     }
     if (print_string_table) {
-        // todo
+        print_data_in_string_table(file, &elf_header, section_header);
     }
     if (print_fs){
         print_fs_capabilities(elf_file, file);
@@ -101,59 +94,15 @@ int main(int argc, char *argv[]) {
     if (!print_text && !print_sections && !print_section_info && !print_entrypoint && !print_string_table && !print_linked_libraries && !print_fs) {
       check_elf_file(&elf_header);
       get_basic_info(elf_file);
-      print_data_in_string_table(file, &elf_header, section_header);
+      
         
     }
 
+    free(section_header);
+    free(dynamic_section.dyn);
     fclose(file);
 
     return 0;
 }
 
 
-// #include "elf_base_parser.h"
-
-// int main(void) {
-  
-//   int c;
-//   const char *elf_file = NULL;
-//   FILE* file = NULL;
-  
-  
-//   Elf64_Ehdr  elf_header;
-//   Elf64_Shdr* section_header;
-//   Section     text_section;
-//   Section     dynamic_section;
-//   Section     string_section;
-
-//   elf_file = "test";
-  
-//   file = fopen(elf_file, "rb"); 
-
-//   if(file == NULL)
-//   {
-//     perror("fopen");
-//     return EXIT_FAILURE;
-//   }
-
-//   if(elf_file) {
-//     fread(&elf_header, 1, sizeof(elf_header), file);
-//   }
-
-
-//   section_header  = elf_section_header(file, &elf_header);
-//   text_section    = find_text_section(file, &elf_header, section_header);
-//   dynamic_section = find_dynamic_section(file, &elf_header, section_header);
-
-//   check_elf_file(&elf_header);
-//   print_total_sections(&elf_header);
-//   print_text_section(file, &text_section);
-//   print_section_names(file, &elf_header, section_header);
-//   print_linked_librairies(file, &elf_header, section_header, dynamic_section);
-//   get_entrypoint_adress(&elf_header);
-//   get_basic_info(elf_file);
-  
-//   fclose(file);
-
-//   return 0;
-// }
