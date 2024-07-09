@@ -1,2 +1,2 @@
 # Elfwalk
-A tool that print informations of an ELF file
+A tool that parse informations of an ELF file
